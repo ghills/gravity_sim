@@ -7,13 +7,13 @@
 
 #define WWIDTH 500
 #define WHEIGHT 500
-#define MAX_BODIES 100
+#define MAX_BODIES 50
 #define G 6.67428e-11
-#define MIN_MASS 100
-#define MAX_MASS 1000
+#define MIN_MASS 2.23e11
+#define MAX_MASS 2.23e12
 #define MIN_R 2
 #define MAX_R 10
-#define DT 0.1
+#define DT 0.5
 
 typedef struct {
 	float mass;
@@ -70,12 +70,23 @@ void get_vel_acc(int node, int dir, float pos0, float vel0, float *vel, float *a
 	float sumfy = 0;
 	
 	int i;
-	float dist;
+	float dist, temp, f, fx, fy;
 	for(i=0;i<num_bodies;i++) {
-		if(!dir) dist = bodies[i].xpos - bodies[node].xpos;
-		else dist = bodies[i].ypos - bodies[node].ypos;
-		
-		sumfy += G * bodies[i].mass * bodies[node].mass * (1/(dist * dist));
+		if( i != node ) {
+			//if(!dir) dist = bodies[i].xpos - bodies[node].xpos;
+			//else dist = bodies[i].ypos - bodies[node].ypos;
+			
+			dist = sqrt((bodies[i].ypos - bodies[node].ypos) * (bodies[i].ypos - bodies[node].ypos) +
+								(bodies[i].xpos - bodies[node].xpos)*(bodies[i].xpos - bodies[node].xpos));
+			f = G * bodies[i].mass * bodies[node].mass * (1/(dist * dist));
+			fx = (bodies[i].xpos - bodies[node].xpos) * f / sqrt((bodies[i].xpos - bodies[node].xpos)*(bodies[i].xpos - bodies[node].xpos) +
+																																		(bodies[i].ypos - bodies[node].ypos)*(bodies[i].ypos - bodies[node].ypos));
+			fy = (bodies[i].ypos - bodies[node].ypos) * f / sqrt((bodies[i].xpos - bodies[node].xpos)*(bodies[i].xpos - bodies[node].xpos) +
+																																		(bodies[i].ypos - bodies[node].ypos)*(bodies[i].ypos - bodies[node].ypos));																										
+			
+			if(!dir) sumfy += fx;
+			else sumfy += fy;
+		}
 	}
 	
 	*vel = vel0;
@@ -101,10 +112,13 @@ void sim_step(void) {
 		get_vel_acc (i, 0, bodies[i].ypos + (DT * v1y[i]), bodies[i].vy + (DT * a1y[i]), &v2y[i], &a2y[i]);
 	}
 	for(i=0; i < num_bodies; i++) {
-		//bodies[i].vx = bodies[i].vx + ( DT * ((a1x[i] + a2x[i]) / 2));
-		//bodies[i].vy = bodies[i].vy + ( DT * ((a1y[i] + a2y[i]) / 2));
-		//bodies[i].xpos = bodies[i].xpos + ( DT * ((v1x[i] + v2x[i]) / 2));
-		//bodies[i].ypos = bodies[i].ypos + ( DT * ((v1y[i] + v2y[i]) / 2));
+		//printf("applying %f and %f as accels\n",a1x[i],a2x[i]);
+		bodies[i].vx = bodies[i].vx + ( DT * ((a1x[i] + a2x[i]) / 2));
+		bodies[i].vy = bodies[i].vy + ( DT * ((a1y[i] + a2y[i]) / 2));
+		
+		//printf("using vel %f,%f\n",v1x[i],v2x[i]);
+		bodies[i].xpos = bodies[i].xpos + ( DT * ((v1x[i] + v2x[i]) / 2));
+		bodies[i].ypos = bodies[i].ypos + ( DT * ((v1y[i] + v2y[i]) / 2));
 	}
 	
 	glutPostRedisplay();
