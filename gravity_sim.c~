@@ -4,29 +4,98 @@
  * 
  */
 #include <stdio.h>
+#include <stdlib.h>
 #include <GL/glut.h>
 #include <math.h>
+#include <time.h>
 
+#define MAX_BODIES 100
+#define G 6.67428e-11
+#define MIN_MASS 100
+#define MAX_MASS 1000
+#define MIN_R 2
+#define MAX_R 10
+
+typedef struct {
+	float mass;
+	float xpos;
+	float ypos;
+	float radius;
+} Body;
+
+void add_body(int x, int y);
+
+int num_bodies;
+Body bodies[MAX_BODIES];
 
 void draw_state(void) {
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 	glBegin(GL_TRIANGLES);
 		glVertex3f(-0.5,-0.5,0.0);
 		glVertex3f(0.5,0.0,0.0);
 		glVertex3f(0.0,0.5,0.0);
 	glEnd();
-	glFlush();
+	
+	glutSwapBuffers();
+}
 
+void sim_step(void) {
+	
+}
+
+void special_press(int key, int x, int y) {
+	printf("special key %d pressed\n",key);
+}
+
+void key_press(unsigned char key, int x, int y) {
+	if (key == 27) 
+		exit(0);
+}
+
+void mouse_click(int button, int state, int x, int y) {
+	if(state == GLUT_UP) {
+		//printf("mouse clicked at %d, %d\n",x,y);
+		add_body(x,y);
+	}
+}
+
+void add_body(int x, int y) {
+	if(num_bodies == MAX_BODIES) {
+		printf("max number of bodies reached!\n");
+	}
+	else {
+		Body newb = bodies[num_bodies];
+		newb.mass = ranf(MIN_MASS,MAX_MASS);
+		newb.radius = ranf(MIN_R,MAX_R);
+		newb.xpos = x;
+		newb.ypos = y;
+		num_bodies++;
+	}
+}
+
+float ranf(float low, float high) {
+	float temp = (rand() / ((float)RAND_MAX + 1.0)) * (high - low) + low;
+	return temp;
 }
 
 int main(int argc, char **argv)
 {
+	srand(time(NULL));
+
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_DEPTH | GLUT_SINGLE | GLUT_RGBA);
+	glutInitDisplayMode(GLUT_DEPTH | GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowPosition(100,100);
-	glutInitWindowSize(320,320);
-	glutCreateWindow("3D Tech- GLUT Tutorial");
+	glutInitWindowSize(500,500);
+	glutCreateWindow("Gravity Simulation");
+
+	glutSpecialFunc(special_press);
+	glutKeyboardFunc(key_press);
+	glutIdleFunc(sim_step);
+	//glutReshapeFunc(change_size);
+	glutMouseFunc(mouse_click);
 	glutDisplayFunc(draw_state);
+
 	glutMainLoop();
 	return (0);
 }
