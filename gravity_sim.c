@@ -21,6 +21,9 @@ typedef struct {
 	float xpos;
 	float ypos;
 	float radius;
+	float color_r;
+	float color_g;
+	float color_b;
 } Body;
 
 void add_body(int x, int y);
@@ -29,15 +32,26 @@ float ranf(float low, float high);
 int num_bodies;
 Body bodies[MAX_BODIES];
 
+void draw_ball(int i) {
+	glPushMatrix();
+		glTranslatef(bodies[i].xpos,bodies[i].ypos,0);
+		glColor3f(bodies[i].color_r, bodies[i].color_g, bodies[i].color_b);
+		glBegin(GL_QUADS);
+			glVertex2d(-bodies[i].radius,bodies[i].radius);
+			glVertex2d(bodies[i].radius,bodies[i].radius);
+			glVertex2d(bodies[i].radius,-bodies[i].radius);
+			glVertex2d(-bodies[i].radius,-bodies[i].radius);
+		glEnd();
+	glPopMatrix();
+}
+
 void draw_state(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glBegin(GL_TRIANGLES);
-		glVertex3f(-0.5,-0.5,0.0);
-		glVertex3f(0.5,0.0,0.0);
-		glVertex3f(0.0,0.5,0.0);
-	glEnd();
-	
+	int i;
+	for(i = 0; i < num_bodies; i++) {
+		draw_ball(i);
+	}
 	glutSwapBuffers();
 }
 
@@ -52,6 +66,9 @@ void special_press(int key, int x, int y) {
 void key_press(unsigned char key, int x, int y) {
 	if (key == 27) 
 		exit(0);
+	else if (key == 'c') {
+		printf("Count: %d\n",num_bodies);
+	}
 }
 
 void mouse_click(int button, int state, int x, int y) {
@@ -66,11 +83,13 @@ void add_body(int x, int y) {
 		printf("max number of bodies reached!\n");
 	}
 	else {
-		Body newb = bodies[num_bodies];
-		newb.mass = ranf(MIN_MASS,MAX_MASS);
-		newb.radius = ranf(MIN_R,MAX_R);
-		newb.xpos = x;
-		newb.ypos = y;
+		bodies[num_bodies].mass = ranf(MIN_MASS,MAX_MASS);
+		bodies[num_bodies].radius = ranf(MIN_R,MAX_R);
+		bodies[num_bodies].color_r = ranf(0,1);
+		bodies[num_bodies].color_g = ranf(0,1);
+		bodies[num_bodies].color_b = ranf(0,1);
+		bodies[num_bodies].xpos = x;
+		bodies[num_bodies].ypos = y;
 		num_bodies++;
 	}
 }
