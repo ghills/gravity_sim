@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <GL/glut.h>
+#include <GL/glu.h>
 #include <math.h>
 #include <time.h>
 
@@ -34,24 +35,39 @@ Body bodies[MAX_BODIES];
 
 void draw_ball(int i) {
 	glPushMatrix();
-		glTranslatef(bodies[i].xpos,bodies[i].ypos,0);
-		glColor3f(bodies[i].color_r, bodies[i].color_g, bodies[i].color_b);
+		//glTranslatef(bodies[i].xpos,bodies[i].ypos,0);
+		//glColor3f(bodies[i].color_r, bodies[i].color_g, bodies[i].color_b);
+		glColor3f(1,0,0);
 		glBegin(GL_QUADS);
-			glVertex2d(-bodies[i].radius,bodies[i].radius);
-			glVertex2d(bodies[i].radius,bodies[i].radius);
-			glVertex2d(bodies[i].radius,-bodies[i].radius);
-			glVertex2d(-bodies[i].radius,-bodies[i].radius);
+			//glVertex2d(-bodies[i].radius,bodies[i].radius);
+			//glVertex2d(bodies[i].radius,bodies[i].radius);
+			//glVertex2d(bodies[i].radius,-bodies[i].radius);
+			//glVertex2d(-bodies[i].radius,-bodies[i].radius);
+			glVertex2d(5,5);
+			glVertex2d(5,-5);
+			glVertex2d(-5,5);
+			glVertex2d(-5,-5);
 		glEnd();
 	glPopMatrix();
 }
 
 void draw_state(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glLoadIdentity();  
+    //gluLookAt (0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
+	//sample drawing
+	//glBegin(GL_TRIANGLES);						// Drawing Using Triangles
+	//	glVertex3f( 0.0f, 1.0f, 0.0f);				// Top
+	//	glVertex3f(-1.0f,-1.0f, 0.0f);				// Bottom Left
+	//	glVertex3f( 1.0f,-1.0f, 0.0f);				// Bottom Right
+	//glEnd();
+	
 	int i;
 	for(i = 0; i < num_bodies; i++) {
 		draw_ball(i);
 	}
+	
 	glutSwapBuffers();
 }
 

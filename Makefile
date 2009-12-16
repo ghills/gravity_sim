@@ -5,7 +5,7 @@ CC = gcc
 CFLAGS = -g -Wall
 OBJECTS = gravity_sim.o
 INCFLAGS = 
-LDFLAGS = -Wl,-rpath,/usr/local/lib,-lglut,-lm
+LDFLAGS = -Wl,-rpath,/usr/local/lib,-lglut,-lm,-lGL,-lGLU
 LIBS = 
 
 all: gravity_sim
